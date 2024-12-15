@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>소년이 온다</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+    #quiz-container {
+      width: 300px;
+      text-align: center;
+    }
+    #quiz-card {
+      border: 2px solid #333;
+      padding: 20px;
+      border-radius: 10px;
+      background-color: #fff;
+    }
+    h2 {
+      font-size: 18px;
+    }
+    .option-container {
+      text-align: left;
+      margin: 10px 0;
+    }
+    .option {
+      display: flex;
+      align-items: center;
+      margin: 5px 0;
+    }
+    .option input[type="radio"] {
+      margin-right: 10px;
+    }
+    #next-btn {
+      margin-top: 10px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    #next-btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div id="quiz-container">
+    <div id="quiz-card">
+      <h2 id="question">여기에 질문이 나옵니다</h2>
+      <div id="options" class="option-container">
+        <!-- 라디오 버튼과 답변이 생성됩니다 -->
+      </div>
+      <button id="next-btn" disabled>다음</button>
+    </div>
+  </div>
+
+  <script>
+    // 퀴즈 데이터
+    const quizData = [
+      {
+        
+        question: "정대를 죽인 무기는 (  ) 다.",
+        options: ["칼", "도끼", "곤봉", "총"],
+        answer: 3,
+      },
+      {
+        question: "은숙은 군인에게 (  )대의 뺨을 맞았다.",
+        options: ["다섯", "일곱", "아홉", "열열"],
+        answer: 1,
+      },
+      {
+        question: "김진수는 총기를 소지했다는 이유로 7년형을 선고받았다. 이후의 소설 내용으로 맞는 번호를 고르시오.",
+        options: ["화재를 일으킨 정황이 발견되어 가중처벌을 받는다.", "증거 부족으로 풀려났다.", "곤봉에 맞아 죽고, 암매장을 당한다.", "군인의 총에 맞아 죽어갔다."],
+        answer: 1,
+      },
+      {
+        question: "정대가 실종되고 나서 동호가 죄책감을 느꼈던 이유는 무엇인가?",
+        options: ["정대의 누나와 함께 교회에서 사람들을 도왔다.", "정대의 물건을 훔쳤다.", "총에 맞아 쓰러지는 정대를 두고 도망쳤다.", "시체들 사이에서 정대를 찾았음에도 가족에게 알리지 못했다."],
+        answer: 2,
+      },
+      {
+        question: "동호는 시민들에게 돌아가라는 권고를 받았다. 그 이유는 무엇인가?",
+        options: ["동호에게 청각장애가 있었기 때문에", "군인들과 동호가 정면으로 맞섰기 때문에", "동호가 시위에 참여했다가 다리를 다쳤기 때문에", "동호의 나이가 너무 어렸기 때문에"],
+        answer: 3,
+      },
+      {
+        question: "",
+        options: ["대니", "레이첼", "하루", "지수"],
+        answer: 3,
+      },
+      {
+        question: "대니와 함께 찾아온 여성들의 수는?",
+        options: ["15", "20", "30", "50"],
+        answer: 1,
+      },
+      {
+        question: "다음 중 모스바나의 특징이 아닌 것을 고르시오.",
+        options: ["인체에 독성이 있다.", "침입성이 강해 숲의 생태를 파괴할 수 있다.", "어두운 곳에서 푸른 빛이 난다.", "약초로도 쓰일 수 있다."],
+        answer: 3,
+      },
+      {
+        question: "지수가 남겨둔 다목적 기억 칩의 비밀번호는?",
+        options: ["프림 빌리지", "더스트 폴", "레이첼", "모스바나"],
+        answer: 2,
+      },
+      {
+        question: "'소년이 온다' 라는 제목의 뜻은 무엇인가?",
+        options: ["우리는 모두 소년이다.", "", "기계 부품을 수월하게 얻기 위해서", "지수가 떠나기를 바라지 않았기 때문에"],
+        answer: 3,
+      },
+    ];
+
+    let currentQuestionIndex = 0;
+    let correctCount = 0; // 정답 개수
+    let incorrectCount = 0; // 오답 개수
+
+    const questionElement = document.getElementById("question");
+    const optionsElement = document.getElementById("options");
+    const nextButton = document.getElementById("next-btn");
+
+    function loadQuestion() {
+      const currentQuiz = quizData[currentQuestionIndex];
+      questionElement.textContent = currentQuiz.question;
+      optionsElement.innerHTML = ""; // 이전 옵션 제거
+      nextButton.disabled = true; // 다음 버튼 비활성화
+
+      currentQuiz.options.forEach((option, index) => {
+        const optionDiv = document.createElement("div");
+        optionDiv.classList.add("option");
+
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = "quiz-option";
+        radio.value = index;
+        radio.id = `option-${index}`;
+        radio.onclick = enableNextButton;
+
+        const label = document.createElement("label");
+        label.htmlFor = `option-${index}`;
+        label.textContent = option;
+
+        optionDiv.appendChild(radio);
+        optionDiv.appendChild(label);
+        optionsElement.appendChild(optionDiv);
+      });
+    }
+
+    function enableNextButton() {
+      nextButton.disabled = false; // 라디오 버튼 클릭 시 다음 버튼 활성화
+    }
+
+    nextButton.addEventListener("click", () => {
+      const selectedOption = document.querySelector('input[name="quiz-option"]:checked');
+      const selectedIndex = parseInt(selectedOption.value, 10);
+      const currentQuiz = quizData[currentQuestionIndex];
+
+      // 정답 및 오답 카운트
+      if (selectedIndex === currentQuiz.answer) {
+        correctCount++;
+      } else {
+        incorrectCount++;
+      }
+
+      // 다음 질문 또는 결과 표시
+      currentQuestionIndex++;
+      if (currentQuestionIndex < quizData.length) {
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    });
+
+    function showResult() {
+      questionElement.textContent = "퀴즈가 끝났습니다!";
+      optionsElement.innerHTML = `
+        <p>정답 개수: ${correctCount}</p>
+        <p>오답 개수: ${incorrectCount}</p>
+      `;
+      nextButton.style.display = "none"; // 다음 버튼 숨기기
+    }
+
+    // 초기화
+    loadQuestion();
+  </script>
+</body>
+</html>

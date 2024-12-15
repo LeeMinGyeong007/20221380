@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>지구 끝의 온실</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+    #quiz-container {
+      width: 300px;
+      text-align: center;
+    }
+    #quiz-card {
+      border: 2px solid #333;
+      padding: 20px;
+      border-radius: 10px;
+      background-color: #fff;
+    }
+    h2 {
+      font-size: 18px;
+    }
+    .option-container {
+      text-align: left;
+      margin: 10px 0;
+    }
+    .option {
+      display: flex;
+      align-items: center;
+      margin: 5px 0;
+    }
+    .option input[type="radio"] {
+      margin-right: 10px;
+    }
+    #next-btn {
+      margin-top: 10px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    #next-btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div id="quiz-container">
+    <div id="quiz-card">
+      <h2 id="question">여기에 질문이 나옵니다</h2>
+      <div id="options" class="option-container">
+        <!-- 라디오 버튼과 답변이 생성됩니다 -->
+      </div>
+      <button id="next-btn" disabled>다음</button>
+    </div>
+  </div>
+
+  <script>
+    // 퀴즈 데이터
+    const quizData = [
+      {
+        
+        question: "더스트생태연구센터에서 수빈이 대량 재배 및 수확에 성공해 첫 시식을 위해서 가져온 과일은 (  ) 이다.",
+        options: ["망고", "블루베리", "산딸기", "수박"],
+        answer: 2,
+      },
+      {
+        question: "종석기 번성종에 해당하는 덩굴식물로, 더스트 시대부터 종식 직후까지 독점종의 지위를 차지하다가, 재건 이후 서식지가 급격히 감소해 최근에는 국내에서 찾아볼 수 없었다. 그러나 약 삼 년 전부터 국지적인 증식 현상이 발견된 이 식물의 이름은?",
+        options: ["등수국", "모스바나", "능소화", "마"],
+        answer: 1,
+      },
+      {
+        question: "어릴 적 아영의 이웃집 옆에 살았던 이희수의 직업은 (  ) 였다.",
+        options: ["원예사", "정비사", "군인", "요리사"],
+        answer: 2,
+      },
+      {
+        question: "프림 빌리지에 정착하게 된 나오미가 처음 맡은 임무는?",
+        options: ["정찰", "재배", "치료", "수확"],
+        answer: 0,
+      },
+      {
+        question: "나오미와 하루가 정찰하다가 함정에 빠지게 된 동물은 (   ) 이다.",
+        options: ["다람쥐", "토끼", "미어캣", "고양이"],
+        answer: 2,
+      },
+      {
+        question: "프림 빌리지를 떠나기 전 나오미가 마지막으로 대화한 인물은?",
+        options: ["대니", "레이첼", "하루", "지수"],
+        answer: 3,
+      },
+      {
+        question: "대니와 함께 찾아온 여성들의 수는?",
+        options: ["15", "20", "30", "50"],
+        answer: 1,
+      },
+      {
+        question: "다음 중 모스바나의 특징이 아닌 것을 고르시오.",
+        options: ["인체에 독성이 있다.", "침입성이 강해 숲의 생태를 파괴할 수 있다.", "어두운 곳에서 푸른 빛이 난다.", "약초로도 쓰일 수 있다."],
+        answer: 3,
+      },
+      {
+        question: "지수가 남겨둔 다목적 기억 칩의 비밀번호는?",
+        options: ["프림 빌리지", "더스트 폴", "레이첼", "모스바나"],
+        answer: 2,
+      },
+      {
+        question: "레이첼이 지수에게 숲 밖에서도 자라날 수 있는 모스바나를 넘겨주지 않은 까닭은 무엇인가?",
+        options: ["인류의 멸망을 바랐기 때문에", "마을을 실험실로 쓰기를 원했기 때문에", "기계 부품을 수월하게 얻기 위해서", "지수가 떠나기를 바라지 않았기 때문에"],
+        answer: 3,
+      },
+    ];
+
+    let currentQuestionIndex = 0;
+    let correctCount = 0; // 정답 개수
+    let incorrectCount = 0; // 오답 개수
+
+    const questionElement = document.getElementById("question");
+    const optionsElement = document.getElementById("options");
+    const nextButton = document.getElementById("next-btn");
+
+    function loadQuestion() {
+      const currentQuiz = quizData[currentQuestionIndex];
+      questionElement.textContent = currentQuiz.question;
+      optionsElement.innerHTML = ""; // 이전 옵션 제거
+      nextButton.disabled = true; // 다음 버튼 비활성화
+
+      currentQuiz.options.forEach((option, index) => {
+        const optionDiv = document.createElement("div");
+        optionDiv.classList.add("option");
+
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = "quiz-option";
+        radio.value = index;
+        radio.id = `option-${index}`;
+        radio.onclick = enableNextButton;
+
+        const label = document.createElement("label");
+        label.htmlFor = `option-${index}`;
+        label.textContent = option;
+
+        optionDiv.appendChild(radio);
+        optionDiv.appendChild(label);
+        optionsElement.appendChild(optionDiv);
+      });
+    }
+
+    function enableNextButton() {
+      nextButton.disabled = false; // 라디오 버튼 클릭 시 다음 버튼 활성화
+    }
+
+    nextButton.addEventListener("click", () => {
+      const selectedOption = document.querySelector('input[name="quiz-option"]:checked');
+      const selectedIndex = parseInt(selectedOption.value, 10);
+      const currentQuiz = quizData[currentQuestionIndex];
+
+      // 정답 및 오답 카운트
+      if (selectedIndex === currentQuiz.answer) {
+        correctCount++;
+      } else {
+        incorrectCount++;
+      }
+
+      // 다음 질문 또는 결과 표시
+      currentQuestionIndex++;
+      if (currentQuestionIndex < quizData.length) {
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    });
+
+    function showResult() {
+      questionElement.textContent = "퀴즈가 끝났습니다!";
+      optionsElement.innerHTML = `
+        <p>정답 개수: ${correctCount}</p>
+        <p>오답 개수: ${incorrectCount}</p>
+      `;
+      nextButton.style.display = "none"; // 다음 버튼 숨기기
+    }
+
+    // 초기화
+    loadQuestion();
+  </script>
+</body>
+</html>

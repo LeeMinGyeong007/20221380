@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>방탈출 게임</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #333;
+      color: white;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    #game-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background: url('lamp.jpg') no-repeat center center; /* 배경 이미지 추가 */
+      background-size: cover; /* 이미지를 컨테이너에 맞게 크기 조정 */
+    }
+
+    .clue {
+      display: none; /* 기본적으로 단서 숨기기 */
+      position: absolute;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      max-width: 200px;
+      z-index: 10;
+    }
+
+    .photo {
+      position: absolute;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .photo:hover {
+      transform: scale(1.1); /* 마우스를 올리면 확대 효과 */
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <!-- 사진 1 -->
+    <img 
+      src="table.png" 
+      alt="사진1" 
+      class="photo" 
+      id="photo1" 
+      style="top: 20%; left: 30%; width: 100px; height: 100px;">
+    
+    <!-- 단서 -->
+    <div class="clue" id="clue1" style="top: 25%; left: 35%;">
+      📜 
+    </div>
+
+    <!-- 사진 2 -->
+    <img 
+      src="chemistry.jpg" 
+      alt="사진2" 
+      class="photo" 
+      id="photo2" 
+      style="top: 50%; left: 60%; width: 120px; height: 120px;">
+    
+    <!-- 단서 -->
+    <div class="clue" id="clue2" style="top: 55%; left: 65%;">
+      📜 단서: 두 번째 문은 동쪽으로 열린다.
+    </div>
+  </div>
+
+  <script>
+    // 사진 클릭 이벤트 등록
+    document.getElementById("photo1").addEventListener("click", function () {
+      const clue1 = document.getElementById("clue1");
+      clue1.style.display = "block"; // 단서1 표시
+    });
+
+    document.getElementById("photo2").addEventListener("click", function () {
+      const clue2 = document.getElementById("clue2");
+      clue2.style.display = "block"; // 단서2 표시
+
+      // 사진 클릭 후 새로운 사진 추가
+      const newPhoto = document.createElement("img");
+      newPhoto.src = "photo3.jpg";
+      newPhoto.alt = "새로운 사진";
+      newPhoto.className = "photo";
+      newPhoto.style = "top: 70%; left: 40%; width: 150px; height: 150px;";
+      newPhoto.addEventListener("click", function () {
+        alert("축하합니다! 방탈출 성공!");
+      });
+      document.getElementById("game-container").appendChild(newPhoto);
+    });
+  </script>
+</body>
+</html>

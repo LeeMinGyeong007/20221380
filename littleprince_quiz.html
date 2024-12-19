@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>지구 끝의 온실</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+    #quiz-container {
+      width: 300px;
+      text-align: center;
+    }
+    #quiz-card {
+      border: 2px solid #333;
+      padding: 20px;
+      border-radius: 10px;
+      background-color: #fff;
+    }
+    h2 {
+      font-size: 18px;
+    }
+    .option-container {
+      text-align: left;
+      margin: 10px 0;
+    }
+    .option {
+      display: flex;
+      align-items: center;
+      margin: 5px 0;
+    }
+    .option input[type="radio"] {
+      margin-right: 10px;
+    }
+    #next-btn {
+      margin-top: 10px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    #next-btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div id="quiz-container">
+    <div id="quiz-card">
+      <h2 id="question">여기에 질문이 나옵니다</h2>
+      <div id="options" class="option-container">
+        <!-- 라디오 버튼과 답변이 생성됩니다 -->
+      </div>
+      <button id="next-btn" disabled>다음</button>
+    </div>
+  </div>
+
+  <script>
+    // 퀴즈 데이터
+    const quizData = [
+      {
+        
+        question: "어린 왕자가 처음 주인공에게 그려달라고 부탁했던 것은 무엇인가?",
+        options: ["모자", "코끼리", "보아뱀", "양"],
+        answer: 3,
+      },
+      {
+        question: "어린왕자가 자신이 살던 별을 떠나오기 전에, 함께 했던 꽃은 무엇인가?",
+        options: ["튤립", "장미", "국화", "민들레"],
+        answer: 1,
+      },
+      {
+        question: "어느 날은 태양이 지는 것을 (  )번이나 본 적도 있어! 있잖아, 사람은 너무 슬플 때 해지는 것을 보고 싶거든... ",
+        options: ["마흔네", "쉰", "일흔", "수천"],
+        answer: 0,
+      },
+      {
+        question: "어린 왕자가 두 번째로 간 별에는 허영쟁이가 살고 있었다. 그에게 해당되는 것이 아닌 것은?",
+        options: ["타인을 즐겁게 해주는 것을 좋아했다.", "자신을 향한 칭찬만을 들었다.", "자신의 생각을 고집한다.", "자신의 모습에 빠져서 산다."],
+        answer: 0,
+      },
+      {
+        question: "여우가 왕자에게 바랐던 것은 무엇인가?",
+        options: ["먹을 것을 주는 것", "함께 모래성을 쌓는 것", "친구가 되고 길들여주는 것", "매일 3시에 함께 산책하는 것것"],
+        answer: 2,
+      },
+      {
+        question: "별들이 아름다운 건 보이지 않는 (  ) 때문이야.",
+        options: ["공기", "빛", "꽃 한송이", "꿈"],
+        answer: 2,
+      },
+      {
+        question: "어린 왕자가 도르래를 잡고 우물의 물을 끌어올렸다. 그 물이 일반적인 물과 다른 까닭은 무엇인가?",
+        options: ["특별한 레시피로 만든 음료", "도르래의 노랫소리", "천연암반수", "처음 마셔보는 깨끗한 물"],
+        answer: 1,
+      },
+      {
+        question: "어린 왕자가 자신의 별이 그리워진 이유는 무엇인가?",
+        options: ["지구에서는 아무것도 먹을 수 없었다.", "몸이 너무 무거워 나날이 몸이 약해졌다.", "키우는 양이 그리워졌다.", "자신의 별에 있는 장미의 곁을 지켜야 했다."],
+        answer: 3,
+      },
+      {
+        question: "가장 중요한 것은 눈에 보이지 않아. (  )으로만 보아야 볼 수 있어어.",
+        options: ["망원경", "마음", "돋보기", "머리리"],
+        answer: 1,
+      },
+      {
+        question: "어린 왕자가 지구를 떠날 때 마지막 모습은?",
+        options: ["근처에 있던 모든 나무가 쓰러졌다.", "거대한 굉음이 사막을 울렸다.", "발목 언저리에서 노란 섬광이 일었다.", "별똥별이 무수히 많이 떨어졌다."],
+        answer: 2,
+      },
+    ];
+
+    let currentQuestionIndex = 0;
+    let correctCount = 0; // 정답 개수
+    let incorrectCount = 0; // 오답 개수
+
+    const questionElement = document.getElementById("question");
+    const optionsElement = document.getElementById("options");
+    const nextButton = document.getElementById("next-btn");
+
+    function loadQuestion() {
+      const currentQuiz = quizData[currentQuestionIndex];
+      questionElement.textContent = currentQuiz.question;
+      optionsElement.innerHTML = ""; // 이전 옵션 제거
+      nextButton.disabled = true; // 다음 버튼 비활성화
+
+      currentQuiz.options.forEach((option, index) => {
+        const optionDiv = document.createElement("div");
+        optionDiv.classList.add("option");
+
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = "quiz-option";
+        radio.value = index;
+        radio.id = `option-${index}`;
+        radio.onclick = enableNextButton;
+
+        const label = document.createElement("label");
+        label.htmlFor = `option-${index}`;
+        label.textContent = option;
+
+        optionDiv.appendChild(radio);
+        optionDiv.appendChild(label);
+        optionsElement.appendChild(optionDiv);
+      });
+    }
+
+    function enableNextButton() {
+      nextButton.disabled = false; // 라디오 버튼 클릭 시 다음 버튼 활성화
+    }
+
+    nextButton.addEventListener("click", () => {
+      const selectedOption = document.querySelector('input[name="quiz-option"]:checked');
+      const selectedIndex = parseInt(selectedOption.value, 10);
+      const currentQuiz = quizData[currentQuestionIndex];
+
+      // 정답 및 오답 카운트
+      if (selectedIndex === currentQuiz.answer) {
+        correctCount++;
+      } else {
+        incorrectCount++;
+      }
+
+      // 다음 질문 또는 결과 표시
+      currentQuestionIndex++;
+      if (currentQuestionIndex < quizData.length) {
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    });
+
+    function showResult() {
+      questionElement.textContent = "퀴즈가 끝났습니다!";
+      optionsElement.innerHTML = `
+        <p>정답 개수: ${correctCount}</p>
+        <p>오답 개수: ${incorrectCount}</p>
+      `;
+      nextButton.style.display = "none"; // 다음 버튼 숨기기
+    }
+
+    // 초기화
+    loadQuestion();
+  </script>
+</body>
+</html>
